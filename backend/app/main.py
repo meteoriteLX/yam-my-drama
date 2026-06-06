@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
+from app.routers import chapters
 
 app = FastAPI(
     title=settings.app_name,
@@ -18,6 +19,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(chapters.router)
+
 
 @app.get("/api/health")
 def health_check() -> dict[str, str]:
@@ -26,4 +29,4 @@ def health_check() -> dict[str, str]:
 
 @app.get("/api/hello")
 def hello() -> dict[str, str]:
-    return {"message": "Hello from novel-to-script backend!"}
+    return {"message": "Hello from yam-my-drama backend!"}
