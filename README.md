@@ -1,0 +1,93 @@
+# AI 小说转剧本工具
+
+将 3 个章节以上的小说文本自动转换为结构化 YAML 剧本初稿，辅助作者快速完成改编。
+
+> **实训营议题**：七牛云 × XEngineer 暑期实训营 · 第三批次  
+> **开发周期**：2026-06-05 ~ 2026-06-07
+
+## Demo 视频
+
+<!-- 6/7 前补充 B 站或云盘链接，置于显眼位置 -->
+待补充
+
+## 项目结构
+
+```
+novel-to-script/
+├── frontend/          # Web 前端（React + Vite）
+├── backend/           # API 服务（FastAPI）
+├── docs/              # 文档（含 YAML Schema 定义）
+├── examples/          # 示例小说与剧本
+├── docker-compose.yml # 一键启动
+└── README.md
+```
+
+## 技术栈
+
+| 模块 | 技术 | 说明 |
+|------|------|------|
+| 前端 | React 18 + Vite 5 | 用户界面与 YAML 编辑 |
+| 后端 | Python 3.11 + FastAPI | REST API 与 AI 转换 Pipeline |
+| 容器 | Docker Compose | 本地一键部署 |
+
+### 第三方依赖
+
+| 依赖 | 用途 | 原创部分 |
+|------|------|----------|
+| React / Vite | 前端框架与构建 | 业务 UI 与交互逻辑 |
+| FastAPI / Uvicorn | 后端 Web 框架 | 章节解析、AI Pipeline、YAML 生成 |
+| （后续 PR 补充 LLM SDK 等） | AI 调用 | Prompt 与转换流程 |
+
+## 快速开始
+
+### 方式一：Docker Compose（推荐）
+
+```bash
+docker compose up --build
+```
+
+- 前端：<http://localhost:5173>
+- 后端：<http://localhost:8000>
+- API 文档：<http://localhost:8000/docs>
+
+### 方式二：本地开发
+
+**后端**
+
+```bash
+cd backend
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+# macOS / Linux
+# source .venv/bin/activate
+
+pip install -r requirements.txt
+cp .env.example .env   # 按需修改
+uvicorn app.main:app --reload --port 8000
+```
+
+**前端**
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+浏览器访问 <http://localhost:5173>，页面会请求后端 `/api/health` 验证连通性。
+
+## 开发规范
+
+- 每个 PR 只做单一功能，合并后主分支保持可运行
+- PR 描述需包含：功能描述、实现思路、测试方式
+- 复用外部代码须在 PR 中注明来源
+
+## 文档
+
+- [YAML Schema 定义](docs/yaml-schema.md)（PR-02 补充）
+
+## License
+
+MIT

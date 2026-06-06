@@ -1,0 +1,6 @@
+# 示例目录
+
+本目录用于存放示例小说文本与生成剧本，包括：
+
+- `sample_novel.txt` — 样例小说（PR-02 或后续 PR）
+- `sample_script.yaml` — 样例剧本（PR-02）
