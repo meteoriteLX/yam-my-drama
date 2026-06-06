@@ -1,65 +1,102 @@
 import { useEffect, useState } from "react";
-import { fetchHealth, fetchHello } from "./api.js";
+import { fetchHealth, loadSampleNovel, parseChapters } from "./api.js";
+import ChapterPreview from "./components/ChapterPreview.jsx";
+import NovelInput from "./components/NovelInput.jsx";
 
 export default function App() {
-  const [health, setHealth] = useState(null);
-  const [hello, setHello] = useState(null);
+  const [backendOnline, setBackendOnline] = useState(null);
+  const [novelText, setNovelText] = useState("");
+  const [parseResult, setParseResult] = useState(null);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const [healthData, helloData] = await Promise.all([
-          fetchHealth(),
-          fetchHello(),
-        ]);
-        setHealth(healthData);
-        setHello(helloData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    load();
+    fetchHealth()
+      .then(() => setBackendOnline(true))
+      .catch(() => setBackendOnline(false));
   }, []);
+
+  async function handleParse() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await parseChapters(novelText);
+      setParseResult(result);
+    } catch (err) {
+      setParseResult(null);
+      setError(err instanceof Error ? err.message : "解析失败");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLoadSample() {
+    setError(null);
+    try {
+      const text = await loadSampleNovel();
+      setNovelText(text);
+      setParseResult(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "样例加载失败");
+    }
+  }
+
+  function handleClear() {
+    setNovelText("");
+    setParseResult(null);
+    setError(null);
+  }
 
   return (
     <div className="app">
       <header className="header">
-        <h1>AI 小说转剧本工具</h1>
-        <p className="subtitle">Novel to Script — 项目初始化完成</p>
+        <div className="header-top">
+          <h1>AI 小说转剧本工具</h1>
+          <span
+            className={`backend-status ${
+              backendOnline === null
+                ? "checking"
+                : backendOnline
+                  ? "online"
+                  : "offline"
+            }`}
+          >
+            {backendOnline === null && "检测后端..."}
+            {backendOnline === true && "后端已连接"}
+            {backendOnline === false && "后端未连接"}
+          </span>
+        </div>
+        <p className="subtitle">粘贴小说文本，自动识别章节并校验是否满足 3 章以上要求</p>
       </header>
 
-      <main className="card">
-        <h2>系统状态</h2>
-        {loading && <p className="muted">正在连接后端...</p>}
+      <main className="main-grid">
+        <NovelInput
+          value={novelText}
+          onChange={setNovelText}
+          onParse={handleParse}
+          onLoadSample={handleLoadSample}
+          onClear={handleClear}
+          loading={loading}
+          disabled={backendOnline === false}
+        />
+
         {error && (
-          <p className="error">
-            后端连接失败：{error}
-            <br />
-            <span className="hint">请确认 backend 已在 8000 端口启动</span>
-          </p>
+          <div className="alert alert-error" role="alert">
+            {error}
+          </div>
         )}
-        {!loading && !error && (
-          <ul className="status-list">
-            <li>
-              <span className="label">Health</span>
-              <code>{JSON.stringify(health)}</code>
-            </li>
-            <li>
-              <span className="label">Hello</span>
-              <code>{JSON.stringify(hello)}</code>
-            </li>
-          </ul>
+
+        {backendOnline === false && (
+          <div className="alert alert-warning" role="alert">
+            无法连接后端，请先启动 API 服务（默认 http://localhost:8000）
+          </div>
         )}
+
+        <ChapterPreview result={parseResult} />
       </main>
 
-      <footer className="footer">
-        PR-01 · 前后端 Hello World 可运行
-      </footer>
+      <footer className="footer">yam-my-drama · 小说章节解析</footer>
     </div>
   );
 }
