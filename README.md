@@ -1,23 +1,19 @@
-# AI 小说转剧本工具
+#AI小说转剧本工具
+将小说文本自动转换为结构化YAML剧本初稿，辅助快速完成改编。
 
-将 3 个章节以上的小说文本自动转换为结构化 YAML 剧本初稿，辅助作者快速完成改编。
+##Demo视频
 
-> **实训营议题**：七牛云 × XEngineer 暑期实训营 · 第三批次  
-> **开发周期**：2026-06-05 ~ 2026-06-07
-
-## Demo 视频
-
-<!-- 6/7 前补充 B 站或云盘链接，置于显眼位置 -->
 待补充
 
 ## 项目结构
 
 ```
-novel-to-script/
+yam-my-drama/
 ├── frontend/          # Web 前端（React + Vite）
 ├── backend/           # API 服务（FastAPI）
 ├── docs/              # 文档（含 YAML Schema 定义）
 ├── examples/          # 示例小说与剧本
+├── schemas/           # JSON Schema 校验定义
 ├── docker-compose.yml # 一键启动
 └── README.md
 ```
@@ -78,16 +74,11 @@ npm run dev
 
 浏览器访问 <http://localhost:5173>，页面会请求后端 `/api/health` 验证连通性。
 
-## 开发规范
-
-- 每个 PR 只做单一功能，合并后主分支保持可运行
-- PR 描述需包含：功能描述、实现思路、测试方式
-- 复用外部代码须在 PR 中注明来源
-
 ## 文档
 
-- [YAML Schema 定义](docs/yaml-schema.md)（PR-02 补充）
+- [YAML Schema 定义](docs/yaml-schema.md) — 剧本结构规范与设计说明
+- [示例剧本](examples/sample_script.yaml) — 符合 Schema 的完整样例
+- [示例小说](examples/sample_novel.txt) — 3 章样例原文（对应示例剧本）
+- [JSON Schema](schemas/script.schema.json) — 机器可读的结构校验定义
 
-## License
 
-MIT

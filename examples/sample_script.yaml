@@ -1,0 +1,170 @@
+schema_version: "1.0.0"
+
+meta:
+  title: "雨夜重逢"
+  subtitle: "改编自《城市边缘》"
+  author: "张三"
+  source_novel:
+    title: "城市边缘"
+    author: "李四"
+    chapters_covered: [1, 2, 3]
+  genre: "都市情感"
+  logline: "一对旧日恋人在雨夜书店重逢，三年前的误会与未说完的话再次浮现。"
+  created_at: "2026-06-06"
+  language: "zh-CN"
+  notes: "本文件为 Schema 示例，展示 3 章小说改编后的剧本结构。"
+
+characters:
+  - id: "char_linwan"
+    name: "林晚"
+    aliases: ["晚晚"]
+    description: "28 岁，旧时光书店店员，性格内敛，不善表达。"
+    role: "protagonist"
+    first_appeared:
+      act: 1
+      scene: "1-1"
+    traits: ["内敛", "敏感", "倔强"]
+
+  - id: "char_chenye"
+    name: "陈野"
+    description: "29 岁，建筑设计师，三年前因误会与林晚分手。"
+    role: "protagonist"
+    first_appeared:
+      act: 1
+      scene: "1-1"
+    traits: ["外冷内热", "执着"]
+
+  - id: "char_aunt"
+    name: "王姨"
+    description: "55 岁，书店隔壁杂货铺老板，林晚的邻居。"
+    role: "supporting"
+    first_appeared:
+      act: 1
+      scene: "1-2"
+    traits: ["热心", "直爽"]
+
+acts:
+  - act: 1
+    title: "雨夜"
+    summary: "陈野在暴雨夜闯入林晚的书店，两人尴尬重逢。"
+    scenes:
+      - scene_id: "1-1"
+        scene_number: 1
+        heading:
+          int_ext: "INT"
+          location: "旧时光书店"
+          time: "NIGHT"
+        source_mapping:
+          chapter: 1
+          paragraph_range: [1, 5]
+          excerpt: "雨下得很大。林晚合上手里的书，门铃响了。"
+        action_blocks:
+          - "窗外暴雨如注，雨水顺着玻璃蜿蜒而下。"
+          - "林晚将一本旧书合上，放回架子上。门铃清脆地响起。"
+          - "她抬头——门口站着陈野，肩头被雨水打湿，手里握着一把收拢的伞。"
+          - "两人目光相遇，空气凝固了一秒。"
+        dialogues:
+          - character_id: "char_chenye"
+            line: "……好久不见。"
+            parenthetical: "低声"
+            emotion: "克制"
+          - character_id: "char_linwan"
+            line: "欢迎光临。"
+            parenthetical: "停顿后"
+            emotion: "平静"
+          - character_id: "char_chenye"
+            line: "我还以为，你不会再跟我说话了。"
+        transition: "CUT TO:"
+        duration_estimate: "3min"
+        notes: "小说第一段心理描写「她心跳漏了一拍」改为 action_blocks 中的「空气凝固」。"
+
+      - scene_id: "1-2"
+        scene_number: 2
+        heading:
+          int_ext: "EXT"
+          location: "书店门口 · 梧桐巷"
+          time: "NIGHT"
+        source_mapping:
+          chapter: 1
+          paragraph_range: [6, 10]
+          excerpt: "王姨从杂货铺探出头：「晚晚，下这么大雨，进来避避！」"
+        action_blocks:
+          - "陈野退到屋檐下，雨水从伞骨滴落。"
+          - "隔壁杂货铺的王姨探出头来，在两人之间来回打量。"
+        dialogues:
+          - character_id: "char_aunt"
+            line: "晚晚，下这么大雨，别站在门口了！"
+          - character_id: "char_aunt"
+            line: "小伙子，你也进来坐坐嘛！"
+            parenthetical: "对陈野"
+          - character_id: "char_linwan"
+            line: "王姨，我们……只是老朋友。"
+            emotion: "回避"
+        transition: "FADE TO:"
+        duration_estimate: "2min"
+
+  - act: 2
+    title: "旧书"
+    summary: "陈野在书架上发现定情信物，往事被揭开。"
+    scenes:
+      - scene_id: "2-1"
+        scene_number: 1
+        heading:
+          int_ext: "INT"
+          location: "旧时光书店 · 内室"
+          time: "NIGHT"
+        source_mapping:
+          chapter: 2
+          paragraph_range: [1, 8]
+          excerpt: "陈野在整理书架时，一本《城市边缘》掉了出来，夹着一张车票。"
+        action_blocks:
+          - "书店内室，暖黄台灯亮着。陈野帮林晚整理高处的书架。"
+          - "一本书滑落——《城市边缘》。一张泛黄的车票从书页间飘落。"
+          - "林晚伸手去捡，陈野先一步拾起。两人手指短暂相触，又迅速分开。"
+        dialogues:
+          - character_id: "char_chenye"
+            line: "这张车票……你还留着？"
+            emotion: "惊讶"
+          - character_id: "char_linwan"
+            line: "那是以前的事了。"
+            parenthetical: "背过身"
+          - character_id: "char_chenye"
+            line: "你当时说要走，我追到车站，你却没有回头。"
+            voice_over: false
+        transition: "CUT TO:"
+        duration_estimate: "4min"
+        notes: "小说大段回忆改为对白推进，减少 flashback 场次。"
+
+  - act: 3
+    title: "未完成的句子"
+    summary: "两人在雨停后的巷口，试图完成三年前未说完的话。"
+    scenes:
+      - scene_id: "3-1"
+        scene_number: 1
+        heading:
+          int_ext: "EXT"
+          location: "梧桐巷口"
+          time: "DAWN"
+        source_mapping:
+          chapter: 3
+          paragraph_range: [1, 6]
+          excerpt: "雨停了。陈野说：「那天我想说的，不是再见。」"
+        action_blocks:
+          - "天边泛起鱼肚白，雨后梧桐叶滴水。"
+          - "陈野与林晚并肩站在巷口，各自沉默。"
+          - "陈野深吸一口气，转向林晚。"
+        dialogues:
+          - character_id: "char_chenye"
+            line: "那天我想说的，不是再见。"
+          - character_id: "char_linwan"
+            line: "那是什么？"
+            parenthetical: "终于抬眼"
+          - character_id: "char_chenye"
+            line: "是——"
+            parenthetical: "停顿"
+          - character_id: "char_linwan"
+            line: "是什么？"
+            emotion: "期待"
+        transition: "FADE OUT."
+        duration_estimate: "3min"
+        notes: "结尾留白，保留「初稿」性质，供作者自行补全。"
