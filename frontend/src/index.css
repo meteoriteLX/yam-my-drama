@@ -151,6 +151,10 @@ body {
   margin-top: 16px;
 }
 
+.action-row {
+  margin-top: -4px;
+}
+
 .btn {
   padding: 8px 16px;
   border-radius: 8px;
@@ -386,6 +390,83 @@ body {
   font-size: 0.875rem;
 }
 
+.progress-panel {
+  border: 1px solid #e0e7ff;
+}
+
+.progress-track {
+  height: 12px;
+  background: #eef2ff;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #06b6d4);
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 10px 0 16px;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.stats-grid div {
+  padding: 12px;
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.stats-grid strong {
+  display: block;
+  color: #111827;
+  font-size: 1.25rem;
+}
+
+.stats-grid span {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.yaml-preview-wrap {
+  margin-top: 16px;
+}
+
+.yaml-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.yaml-preview {
+  max-height: 360px;
+  overflow: auto;
+  padding: 14px;
+  border-radius: 8px;
+  background: #111827;
+  color: #e5e7eb;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
 .footer {
   margin-top: 28px;
   text-align: center;
@@ -402,5 +483,15 @@ body {
     flex-direction: row;
     align-items: center;
     flex-wrap: wrap;
+  }
+
+  .progress-meta,
+  .yaml-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

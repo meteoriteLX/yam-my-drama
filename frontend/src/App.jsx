@@ -1,20 +1,52 @@
 import { useEffect, useState } from "react";
-import { fetchHealth, loadSampleNovel, parseChapters } from "./api.js";
+import {
+  createConversionJob,
+  fetchConversionJob,
+  fetchHealth,
+  loadSampleNovel,
+  parseChapters,
+} from "./api.js";
 import ChapterPreview from "./components/ChapterPreview.jsx";
+import ConversionProgress from "./components/ConversionProgress.jsx";
 import NovelInput from "./components/NovelInput.jsx";
 
 export default function App() {
   const [backendOnline, setBackendOnline] = useState(null);
   const [novelText, setNovelText] = useState("");
   const [parseResult, setParseResult] = useState(null);
+  const [conversionJob, setConversionJob] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [converting, setConverting] = useState(false);
 
   useEffect(() => {
     fetchHealth()
       .then(() => setBackendOnline(true))
       .catch(() => setBackendOnline(false));
   }, []);
+
+  useEffect(() => {
+    if (!conversionJob?.job_id || !["queued", "running"].includes(conversionJob.status)) {
+      setConverting(false);
+      return undefined;
+    }
+
+    setConverting(true);
+    const timer = window.setInterval(async () => {
+      try {
+        const latest = await fetchConversionJob(conversionJob.job_id);
+        setConversionJob(latest);
+        if (!["queued", "running"].includes(latest.status)) {
+          setConverting(false);
+        }
+      } catch (err) {
+        setConverting(false);
+        setError(err instanceof Error ? err.message : "获取转换进度失败");
+      }
+    }, 1200);
+
+    return () => window.clearInterval(timer);
+  }, [conversionJob?.job_id, conversionJob?.status]);
 
   async function handleParse() {
     setLoading(true);
@@ -37,14 +69,39 @@ export default function App() {
       const text = await loadSampleNovel();
       setNovelText(text);
       setParseResult(null);
+      setConversionJob(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "样例加载失败");
     }
   }
 
+  async function handleStartConversion() {
+    setError(null);
+    setConversionJob(null);
+    setConverting(true);
+
+    try {
+      const job = await createConversionJob(novelText);
+      setConversionJob(job);
+    } catch (err) {
+      setConverting(false);
+      setError(err instanceof Error ? err.message : "转换任务创建失败");
+    }
+  }
+
+  async function handleCopyYaml() {
+    const yaml = conversionJob?.result?.yaml;
+    if (!yaml) {
+      return;
+    }
+    await navigator.clipboard.writeText(yaml);
+  }
+
   function handleClear() {
     setNovelText("");
     setParseResult(null);
+    setConversionJob(null);
+    setConverting(false);
     setError(null);
   }
 
@@ -67,7 +124,7 @@ export default function App() {
             {backendOnline === false && "后端未连接"}
           </span>
         </div>
-        <p className="subtitle">粘贴小说文本，自动识别章节并校验是否满足 3 章以上要求</p>
+        <p className="subtitle">粘贴 3 章以上小说文本，异步生成可编辑的 YAML 剧本初稿</p>
       </header>
 
       <main className="main-grid">
@@ -77,9 +134,20 @@ export default function App() {
           onParse={handleParse}
           onLoadSample={handleLoadSample}
           onClear={handleClear}
-          loading={loading}
+          loading={loading || converting}
           disabled={backendOnline === false}
         />
+
+        <div className="button-row action-row">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleStartConversion}
+            disabled={backendOnline === false || converting || !novelText.trim()}
+          >
+            {converting ? "转换中..." : "开始转换为 YAML 剧本"}
+          </button>
+        </div>
 
         {error && (
           <div className="alert alert-error" role="alert">
@@ -93,10 +161,12 @@ export default function App() {
           </div>
         )}
 
+        <ConversionProgress job={conversionJob} onCopyYaml={handleCopyYaml} />
+
         <ChapterPreview result={parseResult} />
       </main>
 
-      <footer className="footer">yam-my-drama · 小说章节解析</footer>
+      <footer className="footer">yam-my-drama · 异步小说转剧本 Pipeline</footer>
     </div>
   );
 }

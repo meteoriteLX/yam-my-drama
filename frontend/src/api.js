@@ -44,3 +44,31 @@ export async function loadSampleNovel() {
   }
   return response.text();
 }
+
+export async function createConversionJob(text) {
+  const response = await fetch(`${API_BASE_URL}/api/convert/jobs`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text,
+      script_title: "AI 改编剧本初稿",
+      author: "yam-my-drama",
+      source_novel_title: "用户上传小说",
+      source_novel_author: "未知",
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
+
+  return response.json();
+}
+
+export async function fetchConversionJob(jobId) {
+  const response = await fetch(`${API_BASE_URL}/api/convert/jobs/${jobId}`);
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
+  return response.json();
+}

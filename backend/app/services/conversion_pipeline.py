@@ -40,6 +40,7 @@ class ConversionPipeline:
         author: str = "yam-my-drama",
         source_novel_title: str = "未知",
         source_novel_author: str = "未知",
+        progress_callback=None,
     ) -> NovelConvertResponse:
         try:
             parsed = parse_novel(text)
@@ -49,12 +50,23 @@ class ConversionPipeline:
         if not parsed.is_valid:
             raise ConversionPipelineError(parsed.message)
 
+        if progress_callback:
+            progress_callback(10, "parsed", f"已识别 {len(parsed.chapters)} 个章节，开始切分场景")
+
         global_registry = GlobalCharacterRegistry()
         acts: list[ScriptAct] = []
         total_scenes = 0
+        chapter_count = len(parsed.chapters)
 
-        for chapter in parsed.chapters:
+        for chapter_index, chapter in enumerate(parsed.chapters, start=1):
             act_number = chapter.chapter_number
+            chapter_base_progress = 10 + int((chapter_index - 1) / chapter_count * 75)
+            if progress_callback:
+                progress_callback(
+                    chapter_base_progress,
+                    "splitting",
+                    f"正在切分第 {act_number} 章场景",
+                )
             try:
                 split_result = self._split_chapter(chapter)
             except SceneSplitError as exc:
@@ -63,8 +75,15 @@ class ConversionPipeline:
                 ) from exc
 
             act_scenes = []
+            scene_count = max(len(split_result.scenes), 1)
             for index, scene_item in enumerate(split_result.scenes, start=1):
                 scene_id = f"{act_number}-{index}"
+                if progress_callback:
+                    progress_callback(
+                        chapter_base_progress + int(index / scene_count * (75 / chapter_count)),
+                        "generating",
+                        f"正在生成第 {act_number} 章第 {index} 场剧本",
+                    )
                 global_registry.register_many(
                     scene_item.characters,
                     act=act_number,
@@ -111,6 +130,9 @@ class ConversionPipeline:
         if not global_registry.all_refs():
             raise ConversionPipelineError("未能识别任何角色，无法生成剧本。")
 
+        if progress_callback:
+            progress_callback(88, "assembling", "正在合并角色表与剧本结构")
+
         meta = default_script_meta(
             script_title=script_title,
             author=author,
@@ -125,6 +147,9 @@ class ConversionPipeline:
             acts=acts,
         )
 
+        if progress_callback:
+            progress_callback(94, "validating", "正在执行 YAML Schema 校验")
+
         script_payload = document.model_dump(mode="json", exclude_none=True)
         try:
             validation = validate_script_data(script_payload)
@@ -136,6 +161,9 @@ class ConversionPipeline:
             raise ConversionPipelineError("生成的剧本未通过 Schema 校验：" + "；".join(messages))
 
         from app.config import settings
+
+        if progress_callback:
+            progress_callback(98, "exporting", "正在导出 YAML")
 
         return NovelConvertResponse(
             script=document,
