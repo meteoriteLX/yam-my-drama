@@ -80,6 +80,26 @@ export default function App() {
     }
   }
 
+  async function handleOneClickDemo() {
+    setError(null);
+    setLoading(true);
+
+    try {
+      const text = await loadSampleNovel();
+      setNovelText(text);
+      const parsed = await parseChapters(text);
+      setParseResult(parsed);
+      setConversionJob(null);
+      const job = await createConversionJob(text);
+      setConversionJob(job);
+      setYamlText(job.result?.yaml ?? "");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "一键体验失败");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleStartConversion() {
     setError(null);
     setConversionJob(null);
@@ -96,11 +116,10 @@ export default function App() {
   }
 
   async function handleCopyYaml() {
-    const yaml = conversionJob?.result?.yaml;
-    if (!yaml) {
+    if (!yamlText.trim()) {
       return;
     }
-    await navigator.clipboard.writeText(yaml);
+    await navigator.clipboard.writeText(yamlText);
   }
 
   function handleDownloadYaml() {
@@ -166,6 +185,14 @@ export default function App() {
             disabled={backendOnline === false || converting || !novelText.trim()}
           >
             {converting ? "转换中..." : "开始转换为 YAML 剧本"}
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleOneClickDemo}
+            disabled={backendOnline === false || loading || converting}
+          >
+            一键体验样例
           </button>
         </div>
 
