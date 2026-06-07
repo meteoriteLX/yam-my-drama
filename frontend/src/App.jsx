@@ -9,12 +9,14 @@ import {
 import ChapterPreview from "./components/ChapterPreview.jsx";
 import ConversionProgress from "./components/ConversionProgress.jsx";
 import NovelInput from "./components/NovelInput.jsx";
+import YamlEditor from "./components/YamlEditor.jsx";
 
 export default function App() {
   const [backendOnline, setBackendOnline] = useState(null);
   const [novelText, setNovelText] = useState("");
   const [parseResult, setParseResult] = useState(null);
   const [conversionJob, setConversionJob] = useState(null);
+  const [yamlText, setYamlText] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [converting, setConverting] = useState(false);
@@ -36,6 +38,9 @@ export default function App() {
       try {
         const latest = await fetchConversionJob(conversionJob.job_id);
         setConversionJob(latest);
+        if (latest.result?.yaml) {
+          setYamlText((current) => current || latest.result.yaml);
+        }
         if (!["queued", "running"].includes(latest.status)) {
           setConverting(false);
         }
@@ -83,6 +88,7 @@ export default function App() {
     try {
       const job = await createConversionJob(novelText);
       setConversionJob(job);
+      setYamlText(job.result?.yaml ?? "");
     } catch (err) {
       setConverting(false);
       setError(err instanceof Error ? err.message : "转换任务创建失败");
@@ -97,10 +103,24 @@ export default function App() {
     await navigator.clipboard.writeText(yaml);
   }
 
+  function handleDownloadYaml() {
+    if (!yamlText.trim()) {
+      return;
+    }
+    const blob = new Blob([yamlText], { type: "text/yaml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "script.yaml";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   function handleClear() {
     setNovelText("");
     setParseResult(null);
     setConversionJob(null);
+    setYamlText("");
     setConverting(false);
     setError(null);
   }
@@ -162,6 +182,16 @@ export default function App() {
         )}
 
         <ConversionProgress job={conversionJob} onCopyYaml={handleCopyYaml} />
+
+        {yamlText && (
+          <YamlEditor
+            value={yamlText}
+            onChange={setYamlText}
+            onCopy={handleCopyYaml}
+            onDownload={handleDownloadYaml}
+            sourceLabel={conversionJob?.status === "succeeded" ? "最新生成稿" : "编辑中"}
+          />
+        )}
 
         <ChapterPreview result={parseResult} />
       </main>
