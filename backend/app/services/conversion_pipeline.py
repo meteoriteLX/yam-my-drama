@@ -41,6 +41,7 @@ class ConversionPipeline:
         source_novel_title: str = "未知",
         source_novel_author: str = "未知",
         progress_callback=None,
+        api_key: str | None = None,
     ) -> NovelConvertResponse:
         try:
             parsed = parse_novel(text)
@@ -68,7 +69,7 @@ class ConversionPipeline:
                     f"正在切分第 {act_number} 章场景",
                 )
             try:
-                split_result = self._split_chapter(chapter)
+                split_result = self._split_chapter(chapter, api_key=api_key)
             except SceneSplitError as exc:
                 raise ConversionPipelineError(
                     f"第 {act_number} 章场景切分失败：{exc}"
@@ -104,6 +105,7 @@ class ConversionPipeline:
                         chapter_content=chapter.content,
                         scene=scene_item,
                         characters=scene_characters or None,
+                        api_key=api_key,
                     )
                 except ScriptGenerateError as exc:
                     raise ConversionPipelineError(
@@ -178,11 +180,12 @@ class ConversionPipeline:
             model=settings.llm_model,
         )
 
-    def _split_chapter(self, chapter) -> SceneSplitResult:
+    def _split_chapter(self, chapter, api_key: str | None = None) -> SceneSplitResult:
         return self._scene_splitter.split_chapter(
             chapter_number=chapter.chapter_number,
             chapter_title=chapter.title,
             content=chapter.content,
+            api_key=api_key,
         )
 
     @staticmethod

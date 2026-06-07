@@ -18,6 +18,7 @@ class SceneSplitService:
         chapter_number: int,
         chapter_title: str,
         content: str,
+        api_key: str | None = None,
     ) -> SceneSplitResult:
         system_prompt, user_prompt = build_scene_split_prompt(
             chapter_number=chapter_number,
@@ -38,6 +39,7 @@ class SceneSplitService:
                 messages,
                 temperature=0.2,
                 max_tokens=4096,
+                api_key=api_key,
             )
             try:
                 result = parse_scene_split_response(raw_text)

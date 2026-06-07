@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 
 from app.models.script import NovelConvertRequest, NovelConvertResponse
 from app.services.conversion_jobs import ConversionJobSnapshot, get_conversion_job_store
@@ -9,7 +9,10 @@ router = APIRouter(prefix="/api/convert", tags=["convert"])
 
 
 @router.post("/novel-to-script", response_model=NovelConvertResponse)
-def convert_novel_to_script(payload: NovelConvertRequest) -> NovelConvertResponse:
+def convert_novel_to_script(
+    payload: NovelConvertRequest,
+    x_llm_api_key: str | None = Header(None, alias="X-LLM-API-Key"),
+) -> NovelConvertResponse:
     pipeline = get_conversion_pipeline()
 
     try:
@@ -29,8 +32,11 @@ def convert_novel_to_script(payload: NovelConvertRequest) -> NovelConvertRespons
 
 
 @router.post("/jobs", response_model=ConversionJobSnapshot, status_code=202)
-def create_conversion_job(payload: NovelConvertRequest) -> ConversionJobSnapshot:
-    return get_conversion_job_store().create_job(payload)
+def create_conversion_job(
+    payload: NovelConvertRequest,
+    x_llm_api_key: str | None = Header(None, alias="X-LLM-API-Key"),
+) -> ConversionJobSnapshot:
+    return get_conversion_job_store().create_job(payload, api_key=x_llm_api_key)
 
 
 @router.get("/jobs/{job_id}", response_model=ConversionJobSnapshot)

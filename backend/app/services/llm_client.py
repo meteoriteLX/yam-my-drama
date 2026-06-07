@@ -54,7 +54,7 @@ class LLMClient:
     def _ensure_configured(self) -> None:
         if not self.is_configured:
             raise LLMNotConfiguredError(
-                "LLM 未配置。请在 backend/.env 中设置 LLM_API_KEY。"
+                "LLM 未配置。请在 backend/.env 中设置 LLM_API_KEY，或在前端界面输入密钥。"
             )
 
     def chat(
@@ -63,8 +63,11 @@ class LLMClient:
         *,
         temperature: float = 0.7,
         max_tokens: int | None = None,
+        api_key: str | None = None,
     ) -> str:
-        self._ensure_configured()
+        if not api_key:
+            self._ensure_configured()
+            api_key = self._settings.llm_api_key
 
         payload: dict[str, Any] = {
             "model": self.model,
@@ -74,19 +77,19 @@ class LLMClient:
         if max_tokens is not None:
             payload["max_tokens"] = max_tokens
 
-        data = self._post_with_retry(payload)
+        data = self._post_with_retry(payload, api_key=api_key)
         return self._extract_content(data)
 
-    def test_connection(self, prompt: str = "请只回复：OK") -> str:
+    def test_connection(self, prompt: str = "请只回复：OK", api_key: str | None = None) -> str:
         messages = [
             {"role": "system", "content": "你是一个连通性测试助手，请简短回复。"},
             {"role": "user", "content": prompt},
         ]
-        return self.chat(messages, temperature=0, max_tokens=32)
+        return self.chat(messages, temperature=0, max_tokens=32, api_key=api_key)
 
-    def _post_with_retry(self, payload: dict[str, Any]) -> dict[str, Any]:
+    def _post_with_retry(self, payload: dict[str, Any], api_key: str) -> dict[str, Any]:
         headers = {
-            "Authorization": f"Bearer {self._settings.llm_api_key}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         }
         last_error: Exception | None = None

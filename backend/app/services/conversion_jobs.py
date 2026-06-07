@@ -35,7 +35,7 @@ class ConversionJobStore:
         self._lock = Lock()
         self._executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="convert-job")
 
-    def create_job(self, payload: NovelConvertRequest) -> ConversionJobSnapshot:
+    def create_job(self, payload: NovelConvertRequest, api_key: str | None = None) -> ConversionJobSnapshot:
         now = self._now()
         job = ConversionJobSnapshot(
             job_id=uuid4().hex,
@@ -49,14 +49,14 @@ class ConversionJobStore:
         with self._lock:
             self._jobs[job.job_id] = job
 
-        self._executor.submit(self._run_job, job.job_id, payload)
+        self._executor.submit(self._run_job, job.job_id, payload, api_key)
         return job
 
     def get_job(self, job_id: str) -> ConversionJobSnapshot | None:
         with self._lock:
             return self._jobs.get(job_id)
 
-    def _run_job(self, job_id: str, payload: NovelConvertRequest) -> None:
+    def _run_job(self, job_id: str, payload: NovelConvertRequest, api_key: str | None = None) -> None:
         self._update_job(job_id, status="running", progress=3, stage="starting", message="正在启动转换 Pipeline")
 
         def report(progress: int, stage: str, message: str) -> None:
@@ -77,6 +77,7 @@ class ConversionJobStore:
                 source_novel_title=payload.source_novel_title,
                 source_novel_author=payload.source_novel_author,
                 progress_callback=report,
+                api_key=api_key,
             )
         except LLMNotConfiguredError as exc:
             self._fail_job(job_id, f"LLM 未配置：{exc}")

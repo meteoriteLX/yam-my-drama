@@ -30,6 +30,7 @@ class ScriptGeneratorService:
         chapter_content: str,
         scene: SceneSplitItem,
         characters: list[CharacterRef] | None = None,
+        api_key: str | None = None,
     ) -> tuple[ScriptSceneBlock, list[CharacterRef]]:
         registry = build_character_registry(scene.characters, characters)
         resolved_scene_id = scene_id or f"{act}-{scene.scene_number}"
@@ -61,6 +62,7 @@ class ScriptGeneratorService:
                 messages,
                 temperature=0.3,
                 max_tokens=4096,
+                api_key=api_key,
             )
             try:
                 block = parse_script_block_response(raw_text)

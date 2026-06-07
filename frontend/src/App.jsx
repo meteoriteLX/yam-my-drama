@@ -3,9 +3,14 @@ import {
   createConversionJob,
   fetchConversionJob,
   fetchHealth,
+  fetchLlmStatus,
+  getLlmApiKey,
   loadSampleNovel,
   parseChapters,
+  setLlmApiKey,
+  testLlmConnection,
 } from "./api.js";
+import ApiKeyConfig from "./components/ApiKeyConfig.jsx";
 import ChapterPreview from "./components/ChapterPreview.jsx";
 import ConversionProgress from "./components/ConversionProgress.jsx";
 import NovelInput from "./components/NovelInput.jsx";
@@ -13,6 +18,10 @@ import YamlEditor from "./components/YamlEditor.jsx";
 
 export default function App() {
   const [backendOnline, setBackendOnline] = useState(null);
+  const [llmConfigured, setLlmConfigured] = useState(false);
+  const [llmApiKey, setLlmApiKeyState] = useState("");
+  const [llmTesting, setLlmTesting] = useState(false);
+  const [llmTestResult, setLlmTestResult] = useState(null);
   const [novelText, setNovelText] = useState("");
   const [parseResult, setParseResult] = useState(null);
   const [conversionJob, setConversionJob] = useState(null);
@@ -26,6 +35,18 @@ export default function App() {
       .then(() => setBackendOnline(true))
       .catch(() => setBackendOnline(false));
   }, []);
+
+  useEffect(() => {
+    if (backendOnline) {
+      fetchLlmStatus().then((status) => {
+        setLlmConfigured(status.configured);
+      }).catch(() => { });
+    }
+  }, [backendOnline]);
+
+  useEffect(() => {
+    setLlmApiKey(llmApiKey);
+  }, [llmApiKey]);
 
   useEffect(() => {
     if (!conversionJob?.job_id || !["queued", "running"].includes(conversionJob.status)) {
@@ -88,6 +109,11 @@ export default function App() {
   }
 
   async function handleOneClickDemo() {
+    if (!llmConfigured && !llmApiKey) {
+      setError("请先配置 API 密钥后再体验一键演示。");
+      return;
+    }
+
     setError(null);
     setLoading(true);
 
@@ -108,6 +134,11 @@ export default function App() {
   }
 
   async function handleStartConversion() {
+    if (!llmConfigured && !llmApiKey) {
+      setError("请先配置 API 密钥后再开始转换。");
+      return;
+    }
+
     const text = novelText.trim();
     if (!text) {
       setError("请先输入至少 3 章的小说文本，再开始转换。");
@@ -125,6 +156,21 @@ export default function App() {
     } catch (err) {
       setConverting(false);
       setError(err instanceof Error ? err.message : "转换任务创建失败");
+    }
+  }
+
+  async function handleTestApiKey() {
+    setLlmTesting(true);
+    setLlmTestResult(null);
+
+    try {
+      await testLlmConnection();
+      setLlmTestResult("success");
+      setLlmConfigured(true);
+    } catch (err) {
+      setLlmTestResult("error");
+    } finally {
+      setLlmTesting(false);
     }
   }
 
@@ -169,13 +215,12 @@ export default function App() {
         <div className="header-top">
           <h1>AI 小说转剧本工具</h1>
           <span
-            className={`backend-status ${
-              backendOnline === null
+            className={`backend-status ${backendOnline === null
                 ? "checking"
                 : backendOnline
                   ? "online"
                   : "offline"
-            }`}
+              }`}
           >
             {backendOnline === null && "检测后端..."}
             {backendOnline === true && "后端已连接"}
@@ -186,6 +231,16 @@ export default function App() {
       </header>
 
       <main className="main-grid">
+        <ApiKeyConfig
+          value={llmApiKey}
+          onChange={setLlmApiKeyState}
+          onTest={handleTestApiKey}
+          disabled={backendOnline === false}
+          configured={llmConfigured || !!llmApiKey}
+          testing={llmTesting}
+          testResult={llmTestResult}
+        />
+
         <NovelInput
           value={novelText}
           onChange={setNovelText}

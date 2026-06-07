@@ -1,5 +1,23 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
+let _llmApiKey = null;
+
+export function setLlmApiKey(key) {
+  _llmApiKey = key;
+}
+
+export function getLlmApiKey() {
+  return _llmApiKey;
+}
+
+function buildHeaders(includeApiKey = false) {
+  const headers = { "Content-Type": "application/json" };
+  if (includeApiKey && _llmApiKey) {
+    headers["X-LLM-API-Key"] = _llmApiKey;
+  }
+  return headers;
+}
+
 async function parseErrorMessage(response) {
   const data = await response.json().catch(() => ({}));
   if (typeof data.detail === "string") {
@@ -19,6 +37,28 @@ export async function fetchHealth() {
   return response.json();
 }
 
+export async function fetchLlmStatus() {
+  const response = await fetch(`${API_BASE_URL}/api/llm/status`, {
+    headers: buildHeaders(true),
+  });
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
+  return response.json();
+}
+
+export async function testLlmConnection() {
+  const response = await fetch(`${API_BASE_URL}/api/llm/test`, {
+    method: "POST",
+    headers: buildHeaders(true),
+    body: JSON.stringify({ prompt: "请只回复：OK" }),
+  });
+  if (!response.ok) {
+    throw new Error(await parseErrorMessage(response));
+  }
+  return response.json();
+}
+
 /**
  * @param {string} text
  * @returns {Promise<import('./types').ChapterParseResult>}
@@ -26,7 +66,7 @@ export async function fetchHealth() {
 export async function parseChapters(text) {
   const response = await fetch(`${API_BASE_URL}/api/chapters/parse`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: buildHeaders(false),
     body: JSON.stringify({ text }),
   });
 
@@ -48,7 +88,7 @@ export async function loadSampleNovel() {
 export async function createConversionJob(text) {
   const response = await fetch(`${API_BASE_URL}/api/convert/jobs`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: buildHeaders(true),
     body: JSON.stringify({
       text,
       script_title: "AI 改编剧本初稿",
