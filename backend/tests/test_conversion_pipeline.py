@@ -78,7 +78,7 @@ class TestConversionPipeline:
         mock_generator = MagicMock()
 
         def fake_generate(*, act, scene_id, chapter_number, chapter_content, scene, characters=None):
-            char_id = "char_linwan" if characters else "char_linwan"
+            char_id = characters[0].id if characters else "char_linwan"
             block = ScriptSceneBlock(
                 scene_id=scene_id,
                 scene_number=scene.scene_number,
@@ -120,6 +120,7 @@ class TestConversionPipeline:
         parsed_yaml = yaml.safe_load(result.yaml)
         assert parsed_yaml["meta"]["title"] == "雨夜重逢"
         assert parsed_yaml["characters"]
+        assert result.validation.valid is True
 
     def test_convert_rejects_less_than_three_chapters(self) -> None:
         text = """

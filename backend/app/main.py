@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import chapters, convert, llm, scenes
+from app.routers import chapters, convert, llm, scenes, script
 
 app = FastAPI(
     title=settings.app_name,
@@ -23,6 +23,7 @@ app.include_router(chapters.router)
 app.include_router(llm.router)
 app.include_router(scenes.router)
 app.include_router(convert.router)
+app.include_router(script.router)
 
 
 @app.get("/api/health")

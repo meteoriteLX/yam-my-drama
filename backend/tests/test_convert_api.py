@@ -14,7 +14,12 @@ from app.models.script import (
     ScriptMeta,
     SourceNovelMeta,
 )
-from app.models.script_block import ScriptSceneBlock, SceneHeading, SourceMapping
+from app.models.validation import ScriptValidationResult
+from app.models.script_block import (
+    ScriptSceneBlock,
+    SceneHeading,
+    SourceMapping,
+)
 from app.services.conversion_pipeline import reset_conversion_pipeline
 
 client = TestClient(app)
@@ -79,6 +84,7 @@ class TestConvertAPI:
                 scene_count=3,
                 character_count=2,
             ),
+            validation=ScriptValidationResult(valid=True, errors=[], warnings=[]),
             model="deepseek-chat",
         )
 

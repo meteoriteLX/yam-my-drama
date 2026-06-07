@@ -5,6 +5,7 @@ from datetime import date
 from pydantic import BaseModel, Field, field_validator
 
 from app.models.script_block import ScriptSceneBlock
+from app.models.validation import ScriptValidationResult
 
 
 class SceneRef(BaseModel):
@@ -81,6 +82,7 @@ class NovelConvertResponse(BaseModel):
     script: ScriptDocument
     yaml: str
     stats: ConversionStats
+    validation: ScriptValidationResult
     model: str
 
 

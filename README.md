@@ -288,6 +288,45 @@ Pipeline 流程（按章串行）：
 3. 跨章合并角色表（同名角色保持同一 ID）
 4. 组装为 YAML Schema 结构并导出
 
+### 剧本 Schema 校验（PR-09）
+
+`POST /api/script/validate` — 校验 YAML 或 JSON 剧本是否符合 Schema
+
+请求体（二选一）：
+
+```json
+{ "yaml": "schema_version: \"1.0.0\"\nmeta:\n  ..." }
+```
+
+或
+
+```json
+{ "script": { "schema_version": "1.0.0", "meta": {}, "characters": [], "acts": [] } }
+```
+
+响应示例：
+
+```json
+{
+  "valid": false,
+  "errors": [
+    {
+      "code": "schema",
+      "path": "meta",
+      "message": \"'meta' is a required property\"
+    }
+  ],
+  "warnings": []
+}
+```
+
+校验包含两层：
+
+1. **JSON Schema 结构校验**（`schemas/script.schema.json`）
+2. **业务规则校验**：scene_id 唯一、对白 character_id 已注册、角色首次出场场景存在等
+
+`POST /api/convert/novel-to-script` 的响应现已包含 `validation` 字段，Pipeline 输出会自动校验。
+
 ## 测试
 
 ```bash

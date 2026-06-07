@@ -13,6 +13,7 @@ from app.services.chapter_parser import ChapterParseError, parse_novel
 from app.services.character_registry import GlobalCharacterRegistry
 from app.services.scene_splitter import SceneSplitError, SceneSplitService, get_scene_split_service
 from app.services.script_generator import ScriptGenerateError, ScriptGeneratorService, get_script_generator_service
+from app.services.script_validator import ScriptValidationError, validate_script_data
 from app.utils.yaml_export import script_to_yaml
 
 
@@ -124,6 +125,16 @@ class ConversionPipeline:
             acts=acts,
         )
 
+        script_payload = document.model_dump(mode="json", exclude_none=True)
+        try:
+            validation = validate_script_data(script_payload)
+        except ScriptValidationError as exc:
+            raise ConversionPipelineError(str(exc)) from exc
+
+        if not validation.valid:
+            messages = [f"{issue.path}: {issue.message}" for issue in validation.errors[:5]]
+            raise ConversionPipelineError("生成的剧本未通过 Schema 校验：" + "；".join(messages))
+
         from app.config import settings
 
         return NovelConvertResponse(
@@ -135,6 +146,7 @@ class ConversionPipeline:
                 scene_count=total_scenes,
                 character_count=len(global_registry),
             ),
+            validation=validation,
             model=settings.llm_model,
         )
 

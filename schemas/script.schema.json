@@ -65,7 +65,7 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^char_[a-z][a-z0-9_]*$"
+          "pattern": "^char_[a-z0-9_]+$"
         },
         "name": { "type": "string", "minLength": 1 },
         "aliases": {
@@ -158,7 +158,7 @@
     },
     "source_mapping": {
       "type": "object",
-      "required": ["chapter", "paragraph_range"],
+      "required": ["chapter"],
       "additionalProperties": false,
       "properties": {
         "chapter": { "type": "integer", "minimum": 1 },
@@ -178,7 +178,7 @@
       "properties": {
         "character_id": {
           "type": "string",
-          "pattern": "^char_[a-z][a-z0-9_]*$"
+          "pattern": "^char_[a-z0-9_]+$"
         },
         "line": { "type": "string" },
         "parenthetical": { "type": "string" },
