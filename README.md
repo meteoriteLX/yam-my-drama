@@ -3,7 +3,17 @@
 
 ## Demo视频
 
-待补充
+- Demo 链接：**待上传后补充**
+- 建议放置在可公开访问的平台（如 bilibili / 云盘）
+- 请在仓库公开后，将链接放在本区最显眼位置
+
+## 作品说明
+
+- 议题方向：AI 小说转剧本工具
+- 产品形态：Web 端
+- 核心能力：≥3 章小说文本自动转换为结构化 YAML 剧本初稿
+- 额外交付：`docs/yaml-schema.md` 中定义的 YAML Schema 及设计原因说明
+- Demo 体验：支持样例小说一键体验、异步进度展示、YAML 在线编辑与导出
 
 ## 项目结构
 
@@ -30,10 +40,13 @@ yam-my-drama/
 
 | 依赖 | 用途 | 原创部分 |
 |------|------|----------|
-| React / Vite | 前端框架与构建 | 业务 UI 与交互逻辑 |
-| FastAPI / Uvicorn | 后端 Web 框架 | 章节解析、AI Pipeline、YAML 生成 |
+| React / React DOM | 前端渲染与交互 | 业务 UI、进度展示、编辑体验 |
+| Vite | 前端开发与构建 | 页面集成与样例体验 |
+| FastAPI / Uvicorn | 后端 Web 框架 | 章节解析、AI Pipeline、异步任务与 YAML 生成 |
+| Pydantic / Pydantic Settings | 数据模型与配置管理 | 剧本结构、任务状态、请求校验 |
+| PyYAML / jsonschema | YAML 导出与 Schema 校验 | 剧本结构验证、错误提示与导出 |
 | httpx | HTTP 客户端 | LLM OpenAI 兼容 API 调用（原创封装） |
-| （后续 PR 补充） | AI Prompt 与转换 | Prompt 工程与 Pipeline 编排 |
+| pytest | 测试框架 | 后端单元测试与 API 测试 |
 
 ## 快速开始
 
@@ -327,13 +340,25 @@ Pipeline 流程（按章串行）：
 
 `POST /api/convert/novel-to-script` 的响应现已包含 `validation` 字段，Pipeline 输出会自动校验。
 
-## 测试
+## 运行与测试
 
 ```bash
 cd backend
 pip install -r requirements.txt
 pytest
 ```
+
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+## 开发说明
+
+- 后端接口采用 FastAPI，支持同步转换与异步任务两种方式。
+- 前端提供章节解析、转换进度、在线 YAML 编辑、复制与下载能力。
+- 内存异步任务队列主要用于 Demo 与单机演示场景，便于在三天实训中快速验证体验。
 
 ## 文档
 
