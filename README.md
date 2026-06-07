@@ -206,6 +206,59 @@ npm run dev
 }
 ```
 
+### 场景剧本块生成（PR-07）
+
+`POST /api/scenes/generate-script` — 将单个场景生成为含 action_blocks 与 dialogues 的剧本块（对齐 YAML Schema）
+
+请求体：
+
+```json
+{
+  "act": 1,
+  "scene_id": "1-1",
+  "chapter_number": 1,
+  "chapter_content": "雨下得很大。林晚合上书，门铃响了...",
+  "scene": {
+    "scene_number": 1,
+    "location": "旧时光书店",
+    "int_ext": "INT",
+    "time": "NIGHT",
+    "summary": "林晚与陈野雨夜重逢",
+    "characters": ["林晚", "陈野"],
+    "source_excerpt": "雨下得很大。"
+  },
+  "characters": [
+    { "id": "char_linwan", "name": "林晚", "role": "protagonist" },
+    { "id": "char_chenye", "name": "陈野", "role": "protagonist" }
+  ]
+}
+```
+
+响应示例：
+
+```json
+{
+  "act": 1,
+  "model": "deepseek-chat",
+  "scene": {
+    "scene_id": "1-1",
+    "scene_number": 1,
+    "heading": { "int_ext": "INT", "location": "旧时光书店", "time": "NIGHT" },
+    "source_mapping": { "chapter": 1, "excerpt": "雨下得很大。" },
+    "action_blocks": ["窗外暴雨如注，林晚合上书。"],
+    "dialogues": [
+      { "character_id": "char_linwan", "line": "欢迎光临。", "emotion": "平静" }
+    ],
+    "transition": "CUT TO:"
+  },
+  "characters": [
+    { "id": "char_linwan", "name": "林晚", "role": "protagonist" }
+  ]
+}
+```
+
+典型流程：`split-chapter` → 取单个 scene → `generate-script` 生成剧本块。
+
 ## 测试
 
 ```bash
