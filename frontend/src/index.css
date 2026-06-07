@@ -160,6 +160,12 @@ body {
   color: var(--text-muted);
 }
 
+.result-tips {
+  margin-top: 10px;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
 .btn {
   padding: 8px 16px;
   border-radius: 8px;

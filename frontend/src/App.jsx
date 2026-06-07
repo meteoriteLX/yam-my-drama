@@ -54,11 +54,17 @@ export default function App() {
   }, [conversionJob?.job_id, conversionJob?.status]);
 
   async function handleParse() {
+    const text = novelText.trim();
+    if (!text) {
+      setError("请先输入小说文本后再解析章节。");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      const result = await parseChapters(novelText);
+      const result = await parseChapters(text);
       setParseResult(result);
     } catch (err) {
       setParseResult(null);
@@ -75,6 +81,7 @@ export default function App() {
       setNovelText(text);
       setParseResult(null);
       setConversionJob(null);
+      setYamlText("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "样例加载失败");
     }
@@ -101,12 +108,18 @@ export default function App() {
   }
 
   async function handleStartConversion() {
+    const text = novelText.trim();
+    if (!text) {
+      setError("请先输入至少 3 章的小说文本，再开始转换。");
+      return;
+    }
+
     setError(null);
     setConversionJob(null);
     setConverting(true);
 
     try {
-      const job = await createConversionJob(novelText);
+      const job = await createConversionJob(text);
       setConversionJob(job);
       setYamlText(job.result?.yaml ?? "");
     } catch (err) {
@@ -119,7 +132,11 @@ export default function App() {
     if (!yamlText.trim()) {
       return;
     }
-    await navigator.clipboard.writeText(yamlText);
+    try {
+      await navigator.clipboard.writeText(yamlText);
+    } catch {
+      setError("复制失败，请手动选择文本复制。");
+    }
   }
 
   function handleDownloadYaml() {
@@ -131,7 +148,9 @@ export default function App() {
     const link = document.createElement("a");
     link.href = url;
     link.download = "script.yaml";
+    document.body.appendChild(link);
     link.click();
+    link.remove();
     URL.revokeObjectURL(url);
   }
 
