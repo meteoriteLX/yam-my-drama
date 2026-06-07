@@ -32,7 +32,8 @@ yam-my-drama/
 |------|------|----------|
 | React / Vite | 前端框架与构建 | 业务 UI 与交互逻辑 |
 | FastAPI / Uvicorn | 后端 Web 框架 | 章节解析、AI Pipeline、YAML 生成 |
-| （后续 PR 补充 LLM SDK 等） | AI 调用 | Prompt 与转换流程 |
+| httpx | HTTP 客户端 | LLM OpenAI 兼容 API 调用（原创封装） |
+| （后续 PR 补充） | AI Prompt 与转换 | Prompt 工程与 Pipeline 编排 |
 
 ## 快速开始
 
@@ -60,8 +61,20 @@ python -m venv .venv
 # source .venv/bin/activate
 
 pip install -r requirements.txt
-cp .env.example .env   # 按需修改
+cp .env.example .env   # 配置 LLM_API_KEY 等
 uvicorn app.main:app --reload --port 8000
+```
+
+**LLM 配置（PR-05）**
+
+在 `backend/.env` 中设置（OpenAI 兼容接口，支持七牛云等）：
+
+```env
+LLM_API_KEY=your-api-key
+LLM_BASE_URL=https://your-llm-endpoint/v1
+LLM_MODEL=gpt-4o-mini
+LLM_TIMEOUT=60
+LLM_MAX_RETRIES=2
 ```
 
 **前端**
@@ -122,6 +135,35 @@ npm run dev
 
 - 中文：`第一章 标题`、`第1章 标题`
 - 英文：`Chapter 1 Title`
+
+### LLM 状态与测试（PR-05）
+
+`GET /api/llm/status` — 查看 LLM 是否已配置（不消耗 API 额度）
+
+```json
+{
+  "configured": true,
+  "model": "gpt-4o-mini",
+  "base_url": "https://api.openai.com/v1",
+  "timeout": 60.0,
+  "max_retries": 2,
+  "message": "LLM 已配置，可调用 /api/llm/test 进行连通性测试。"
+}
+```
+
+`POST /api/llm/test` — 发送简短测试请求，验证 API Key 与网络连通性
+
+```json
+// 请求（prompt 可选）
+{ "prompt": "请只回复：OK" }
+
+// 响应
+{
+  "model": "gpt-4o-mini",
+  "prompt": "请只回复：OK",
+  "reply": "OK"
+}
+```
 
 ## 测试
 
