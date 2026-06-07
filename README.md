@@ -65,17 +65,19 @@ cp .env.example .env   # 配置 LLM_API_KEY 等
 uvicorn app.main:app --reload --port 8000
 ```
 
-**LLM 配置（PR-05）**
+**LLM 配置（DeepSeek）**
 
-在 `backend/.env` 中设置（OpenAI 兼容接口，支持七牛云等）：
+在 `backend/.env` 中设置：
 
 ```env
-LLM_API_KEY=your-api-key
-LLM_BASE_URL=https://your-llm-endpoint/v1
-LLM_MODEL=gpt-4o-mini
-LLM_TIMEOUT=60
+LLM_API_KEY=your-deepseek-api-key
+LLM_BASE_URL=https://api.deepseek.com
+LLM_MODEL=deepseek-chat
+LLM_TIMEOUT=120
 LLM_MAX_RETRIES=2
 ```
+
+> DeepSeek 使用 OpenAI 兼容接口，无需额外 SDK。API Key 请从 [DeepSeek 开放平台](https://platform.deepseek.com/) 获取，**切勿提交到 Git**（`.env` 已在 `.gitignore` 中）。
 
 **前端**
 
@@ -143,9 +145,9 @@ npm run dev
 ```json
 {
   "configured": true,
-  "model": "gpt-4o-mini",
-  "base_url": "https://api.openai.com/v1",
-  "timeout": 60.0,
+  "model": "deepseek-chat",
+  "base_url": "https://api.deepseek.com",
+  "timeout": 120.0,
   "max_retries": 2,
   "message": "LLM 已配置，可调用 /api/llm/test 进行连通性测试。"
 }
@@ -159,9 +161,48 @@ npm run dev
 
 // 响应
 {
-  "model": "gpt-4o-mini",
+  "model": "deepseek-chat",
   "prompt": "请只回复：OK",
   "reply": "OK"
+}
+```
+
+### 单章场景切分（PR-06）
+
+`POST /api/scenes/split-chapter` — 将单章小说正文拆解为场景列表（调用 DeepSeek）
+
+请求体：
+
+```json
+{
+  "chapter_number": 1,
+  "chapter_title": "雨夜",
+  "content": "雨下得很大。林晚合上书，门铃响了..."
+}
+```
+
+响应示例：
+
+```json
+{
+  "chapter_number": 1,
+  "chapter_title": "雨夜",
+  "scene_count": 2,
+  "model": "deepseek-chat",
+  "scenes": [
+    {
+      "scene_number": 1,
+      "location": "旧时光书店",
+      "int_ext": "INT",
+      "time": "NIGHT",
+      "summary": "林晚与陈野雨夜重逢",
+      "characters": ["林晚", "陈野"],
+      "source_excerpt": "雨下得很大。林晚合上书..."
+    }
+  ],
+  "characters_mentioned": [
+    { "name": "林晚", "role_hint": "protagonist" }
+  ]
 }
 ```
 

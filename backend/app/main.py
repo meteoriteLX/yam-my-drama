@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import chapters, llm
+from app.routers import chapters, llm, scenes
 
 app = FastAPI(
     title=settings.app_name,
@@ -21,6 +21,7 @@ app.add_middleware(
 
 app.include_router(chapters.router)
 app.include_router(llm.router)
+app.include_router(scenes.router)
 
 
 @app.get("/api/health")
