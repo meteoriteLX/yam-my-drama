@@ -259,6 +259,35 @@ npm run dev
 
 典型流程：`split-chapter` → 取单个 scene → `generate-script` 生成剧本块。
 
+### 多章转换 Pipeline（PR-08）
+
+`POST /api/convert/novel-to-script` — 一键将 3 章以上小说转换为完整 YAML 剧本初稿
+
+请求体：
+
+```json
+{
+  "text": "第一章 雨夜\n\n正文...\n\n第二章 旧书\n\n...\n\n第三章 ...",
+  "script_title": "雨夜重逢",
+  "author": "张三",
+  "source_novel_title": "城市边缘",
+  "source_novel_author": "李四"
+}
+```
+
+响应包含：
+
+- `script` — 完整剧本 JSON（meta / characters / acts）
+- `yaml` — 可直接保存的 YAML 字符串
+- `stats` — 章节数、幕数、场景数、角色数
+
+Pipeline 流程（按章串行）：
+
+1. 解析章节并校验 ≥3 章
+2. 每章：场景切分 → 逐场景生成剧本块
+3. 跨章合并角色表（同名角色保持同一 ID）
+4. 组装为 YAML Schema 结构并导出
+
 ## 测试
 
 ```bash
