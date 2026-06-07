@@ -4,9 +4,7 @@
 
 ## Demo 视频
 
-- Demo 链接：**待上传后补充**
-
-
+- Demo 链接：<https://share.weiyun.com/ivFXuSaq>
 
 ## 功能介绍
 
@@ -33,23 +31,23 @@ yam-my-drama/
 
 ## 技术栈
 
-| 模块 | 技术 | 说明 |
-|------|------|------|
-| 前端 | React 18 + Vite 5 | 用户界面与 YAML 编辑 |
+| 模块 | 技术                    | 说明                        |
+| -- | --------------------- | ------------------------- |
+| 前端 | React 18 + Vite 5     | 用户界面与 YAML 编辑             |
 | 后端 | Python 3.11 + FastAPI | REST API 与 AI 转换 Pipeline |
-| 容器 | Docker Compose | 本地一键部署 |
+| 容器 | Docker Compose        | 本地一键部署                    |
 
 ### 第三方依赖
 
-| 依赖 | 用途 | 原创部分 |
-|------|------|----------|
-| React / React DOM | 前端渲染与交互 | 业务 UI、进度展示、编辑体验 |
-| Vite | 前端开发与构建 | 页面集成与样例体验 |
-| FastAPI / Uvicorn | 后端 Web 框架 | 章节解析、AI Pipeline、异步任务与 YAML 生成 |
-| Pydantic / Pydantic Settings | 数据模型与配置管理 | 剧本结构、任务状态、请求校验 |
-| PyYAML / jsonschema | YAML 导出与 Schema 校验 | 剧本结构验证、错误提示与导出 |
-| httpx | HTTP 客户端 | LLM OpenAI 兼容 API 调用（原创封装） |
-| pytest | 测试框架 | 后端单元测试与 API 测试 |
+| 依赖                           | 用途                 | 原创部分                           |
+| ---------------------------- | ------------------ | ------------------------------ |
+| React / React DOM            | 前端渲染与交互            | 业务 UI、进度展示、编辑体验                |
+| Vite                         | 前端开发与构建            | 页面集成与样例体验                      |
+| FastAPI / Uvicorn            | 后端 Web 框架          | 章节解析、AI Pipeline、异步任务与 YAML 生成 |
+| Pydantic / Pydantic Settings | 数据模型与配置管理          | 剧本结构、任务状态、请求校验                 |
+| PyYAML / jsonschema          | YAML 导出与 Schema 校验 | 剧本结构验证、错误提示与导出                 |
+| httpx                        | HTTP 客户端           | LLM OpenAI 兼容 API 调用（原创封装）     |
+| pytest                       | 测试框架               | 后端单元测试与 API 测试                 |
 
 ## 快速开始
 
@@ -171,3 +169,4 @@ npm run build
 - 后端接口采用 FastAPI，支持同步转换与异步任务两种方式。
 - 前端提供章节解析、转换进度、在线 YAML 编辑、复制与下载能力。
 - 内存异步任务队列主要用于 Demo 与单机演示场景，便于在三天实训中快速验证体验。
+

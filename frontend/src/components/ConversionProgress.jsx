@@ -14,7 +14,6 @@ export default function ConversionProgress({ job, onCopyYaml }) {
   }
 
   const stats = job.result?.stats;
-  const yaml = job.result?.yaml ?? "";
 
   return (
     <section className="card progress-panel">
@@ -51,17 +50,6 @@ export default function ConversionProgress({ job, onCopyYaml }) {
         </div>
       )}
 
-      {yaml && (
-        <div className="yaml-preview-wrap">
-          <div className="yaml-toolbar">
-            <span className="label">YAML 剧本预览</span>
-            <button type="button" className="btn btn-secondary" onClick={onCopyYaml}>
-              复制 YAML
-            </button>
-          </div>
-          <pre className="yaml-preview">{yaml}</pre>
-        </div>
-      )}
     </section>
   );
 }
